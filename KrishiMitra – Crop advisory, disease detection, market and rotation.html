@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>KrishiMitra – AI crop advisory, disease detection, market and rotation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #eef2ea;
+            --surf: #fbfcf9;
+            --ink: #14231c;
+            --mute: #5a6b61;
+            --line: #d5ddd0;
+            --leaf: #1f5a3f;
+            --leaf2: #2f7d57;
+            --gold: #e0a526;
+            --chili: #c2412d;
+            --water: #2f6f8f;
+            --on: #fff;
+            color-scheme: light;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px)
+        }
+
+        @media (prefers-color-scheme:dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0f1a14;
+                --surf: #17251d;
+                --ink: #e6efe8;
+                --mute: #9db0a4;
+                --line: #2a3d32;
+                --leaf: #5fbf8a;
+                --leaf2: #4aa575;
+                --gold: #f0b93a;
+                --chili: #ec7a66;
+                --water: #6bb0d0;
+                --on: #0f1a14;
+                color-scheme: dark
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0f1a14;
+            --surf: #17251d;
+            --ink: #e6efe8;
+            --mute: #9db0a4;
+            --line: #2a3d32;
+            --leaf: #5fbf8a;
+            --leaf2: #4aa575;
+            --gold: #f0b93a;
+            --chili: #ec7a66;
+            --water: #6bb0d0;
+            --on: #0f1a14;
+            color-scheme: dark
+        }
+
+        html {
+            scroll-padding-top: env(safe-area-inset-top, 0px)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 400 16px/1.55 "Public Sans", system-ui, sans-serif
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: "Bricolage Grotesque", "Public Sans", sans-serif;
+            margin: 0;
+            line-height: 1.1;
+            letter-spacing: -.02em
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 800
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700
+        }
+
+        h3 {
+            font-size: 1.05rem;
+            font-weight: 700
+        }
+
+        p {
+            margin: .3rem 0
+        }
+
+        .mute {
+            color: var(--mute)
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        label:focus-visible {
+            outline: 3px solid var(--gold);
+            outline-offset: 2px
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 230px 1fr;
+            min-height: 100vh
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding: 24px 16px;
+            border-right: 1px solid var(--line);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: var(--surf)
+        }
+
+        .brand {
+            font: 800 1.3rem "Bricolage Grotesque", sans-serif;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 18px
+        }
+
+        nav a {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            color: var(--ink);
+            text-decoration: none;
+            font-weight: 500
+        }
+
+        nav a svg {
+            width: 20px;
+            height: 20px;
+            flex: none
+        }
+
+        nav a[aria-current=page] {
+            background: var(--leaf);
+            color: var(--on)
+        }
+
+        nav a:not([aria-current=page]):hover {
+            background: var(--bg)
+        }
+
+        nav .sp {
+            flex: 1
+        }
+
+        main {
+            padding: 32px clamp(16px, 4vw, 48px) 64px;
+            max-width: 1100px;
+            width: 100%
+        }
+
+        section.page {
+            display: none
+        }
+
+        section.page.on {
+            display: block
+        }
+
+        .head {
+            margin-bottom: 24px
+        }
+
+        .head p {
+            max-width: 60ch
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px
+        }
+
+        .g2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
+        }
+
+        .g3 {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))
+        }
+
+        .card {
+            background: var(--surf);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 20px
+        }
+
+        .alert {
+            border-left: 6px solid var(--chili)
+        }
+
+        .alert.warn {
+            border-color: var(--gold)
+        }
+
+        .alert.ok {
+            border-color: var(--leaf2)
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: .9rem;
+            margin-bottom: 4px
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--ink);
+            font: inherit
+        }
+
+        .form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px
+        }
+
+        .btn {
+            background: var(--leaf);
+            color: var(--on);
+            border: 0;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font: 600 1rem "Public Sans", sans-serif;
+            cursor: pointer
+        }
+
+        .btn.alt {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--line)
+        }
+
+        .btn:hover {
+            filter: brightness(1.1)
+        }
+
+        .bar {
+            height: 10px;
+            background: var(--bg);
+            border-radius: 6px;
+            overflow: hidden
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            background: var(--leaf2);
+            border-radius: 6px
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px
+        }
+
+        .stat {
+            font: 800 2rem "Bricolage Grotesque", sans-serif
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 600;
+            background: var(--bg);
+            border: 1px solid var(--line)
+        }
+
+        .tag.up {
+            color: var(--leaf)
+        }
+
+        .tag.down {
+            color: var(--chili)
+        }
+
+        .hero {
+            background: var(--leaf);
+            color: var(--on);
+            border-radius: 18px;
+            padding: clamp(22px, 4vw, 40px);
+            margin-bottom: 20px;
+            display: grid;
+            gap: 12px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .hero p {
+            max-width: 50ch;
+            opacity: .92
+        }
+
+        .hero .acts {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 6px
+        }
+
+        .hero .btn {
+            background: var(--gold);
+            color: #1b1500
+        }
+
+        .hero .btn.alt {
+            background: transparent;
+            color: var(--on);
+            border-color: rgba(255, 255, 255, .5)
+        }
+
+        .hero svg.deco {
+            position: absolute;
+            right: -20px;
+            bottom: -30px;
+            width: 260px;
+            opacity: .18
+        }
+
+        .scan {
+            position: relative;
+            border: 2px dashed var(--line);
+            border-radius: 14px;
+            min-height: 280px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 16px;
+            overflow: hidden;
+            background: var(--bg)
+        }
+
+        .scan img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            display: none
+        }
+
+        .scan.has img {
+            display: block
+        }
+
+        .scan.has .ph {
+            display: none
+        }
+
+        .scan.busy::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gold);
+            box-shadow: 0 0 18px var(--gold);
+            animation: sweep 1.4s ease-in-out infinite
+        }
+
+        @keyframes sweep {
+            0% {
+                top: 0
+            }
+
+            50% {
+                top: calc(100% - 4px)
+            }
+
+            100% {
+                top: 0
+            }
+        }
+
+        .samples {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px
+        }
+
+        ol.steps {
+            padding-left: 20px;
+            margin: 8px 0
+        }
+
+        ol.steps li {
+            margin: 6px 0
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--line)
+        }
+
+        th {
+            font-size: .85rem;
+            color: var(--mute);
+            font-weight: 600
+        }
+
+        .wrap {
+            overflow-x: auto
+        }
+
+        .timeline {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            margin: 12px 0
+        }
+
+        .seg {
+            padding: 16px;
+            border: 1px solid var(--line);
+            background: var(--surf);
+            position: relative
+        }
+
+        .seg:first-child {
+            border-radius: 14px 0 0 14px
+        }
+
+        .seg:last-child {
+            border-radius: 0 14px 14px 0
+        }
+
+        .seg b {
+            font: 700 1.15rem "Bricolage Grotesque", sans-serif;
+            display: block;
+            margin: 4px 0
+        }
+
+        .seg.now {
+            background: var(--leaf);
+            color: var(--on)
+        }
+
+        .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .chip {
+            padding: 6px 14px;
+            border-radius: 99px;
+            border: 1px solid var(--line);
+            background: var(--surf);
+            cursor: pointer;
+            font: 500 .95rem "Public Sans", sans-serif;
+            color: var(--ink)
+        }
+
+        .chip[aria-pressed=true] {
+            background: var(--ink);
+            color: var(--bg);
+            border-color: var(--ink)
+        }
+
+        #theme {
+            background: none;
+            border: 1px solid var(--line);
+            color: var(--ink);
+            border-radius: 10px;
+            padding: 8px;
+            cursor: pointer;
+            font: 500 .9rem "Public Sans"
+        }
+
+        @media(max-width:760px) {
+            .app {
+                grid-template-columns: 1fr
+            }
+
+            nav {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: auto;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+                border-right: 0;
+                border-top: 1px solid var(--line);
+                z-index: 20
+            }
+
+            nav .brand,
+            nav .sp,
+            #theme {
+                display: none
+            }
+
+            nav a {
+                flex-direction: column;
+                gap: 2px;
+                font-size: .7rem;
+                padding: 6px 4px;
+                text-align: center
+            }
+
+            main {
+                padding-bottom: 96px
+            }
+
+            .timeline {
+                grid-template-columns: 1fr
+            }
+
+            .seg:first-child,
+            .seg:last-child {
+                border-radius: 0
+            }
+        }
+
+        @media(prefers-reduced-motion:reduce) {
+            .scan.busy::after {
+                animation: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <nav aria-label="Main">
+            <div class="brand"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M12 21V10M12 10C12 6 9 4 5 4c0 4 2 6 7 6zM12 13c0-3 2-5 6-5 0 3-2 5-6 5z" />
+                </svg>KrishiMitra</div>
+            <a href="#home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 11l9-8 9 8v10H3z" />
+                </svg>Home</a>
+            <a href="#advisory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 21V9M12 9c0-4-3-6-7-6 0 4 2 6 7 6zM12 12c0-3 2-5 6-5 0 3-2 5-6 5z" />
+                </svg>Crop advice</a>
+            <a href="#disease"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg>Disease scan</a>
+            <a href="#market"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 17l6-6 4 4 8-8M15 7h6v6" />
+                </svg>Market</a>
+            <a href="#rotation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 12a8 8 0 10-3 6.3M20 4v6h-6" />
+                </svg>Rotation</a>
+            <div class="sp"></div><button id="theme" type="button">Switch theme</button>
+        </nav>
+        <main>
+
+            <section class="page" id="p-home">
+                <div class="hero"><svg class="deco" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 22V10c0-5-4-8-9-8 0 5 3 8 9 8zM12 14c0-4 3-7 9-7 0 4-3 7-9 7z" />
+                    </svg>
+                    <h1>Good morning, Ramesh.<br>Your wheat needs attention today.</h1>
+                    <p>Plot: Nashik, 2.5 acres · Wheat, day 38. Humidity is high this week, which raises rust risk.</p>
+                    <div class="acts"><a href="#disease" class="btn" style="text-decoration:none">Scan a leaf</a><a
+                            href="#advisory" class="btn alt" style="text-decoration:none">Plan next crop</a></div>
+                </div>
+                <div class="grid g3">
+                    <div class="card alert">
+                        <h3>Yellow rust risk: high</h3>
+                        <p class="mute">Humidity 82% and cool nights. Inspect lower leaves and spray if you see stripes.
+                        </p>
+                    </div>
+                    <div class="card alert warn">
+                        <h3>Rain expected Friday</h3>
+                        <p class="mute">12 mm forecast. Delay urea top-dressing until Saturday.</p>
+                    </div>
+                    <div class="card alert ok">
+                        <h3>Wheat price is rising</h3>
+                        <p class="mute">Lasalgaon mandi up 4% this week. Hold your stock for now.</p>
+                    </div>
+                </div>
+                <h2 style="margin:28px 0 12px">This week at a glance</h2>
+                <div class="grid g3">
+                    <div class="card">
+                        <p class="mute">Temperature</p>
+                        <div class="stat">24°C</div>
+                        <p class="mute">Low 13°C overnight</p>
+                    </div>
+                    <div class="card">
+                        <p class="mute">Soil moisture</p>
+                        <div class="stat">61%</div>
+                        <div class="bar"><i style="width:61%"></i></div>
+                    </div>
+                    <div class="card">
+                        <p class="mute">Wheat at Lasalgaon</p>
+                        <div class="stat">₹2,485</div>
+                        <p><span class="tag up">▲ 4.1% this week</span> <span class="mute">per quintal</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="page" id="p-advisory">
+                <div class="head">
+                    <h1>Which crop should I grow?</h1>
+                    <p>Enter your soil and season details. The model ranks crops by how well they suit your field.</p>
+                </div>
+                <div class="card">
+                    <div class="form">
+                        <div><label for="n">Nitrogen (kg/ha)</label><input id="n" type="number" value="82"></div>
+                        <div><label for="ph">Phosphorus (kg/ha)</label><input id="ph" type="number" value="44"></div>
+                        <div><label for="k">Potassium (kg/ha)</label><input id="k" type="number" value="40"></div>
+                        <div><label for="sph">Soil pH</label><input id="sph" type="number" step=".1" value="6.7"></div>
+                        <div><label for="rain">Rainfall (mm)</label><input id="rain" type="number" value="210"></div>
+                        <div><label for="season">Season</label><select id="season">
+                                <option>Kharif (Jun–Oct)</option>
+                                <option selected>Rabi (Nov–Mar)</option>
+                                <option>Zaid (Apr–Jun)</option>
+                            </select></div>
+                    </div>
+                    <p style="margin-top:16px"><button class="btn" id="rec" type="button">Get recommendations</button>
+                    </p>
+                </div>
+                <div id="recout" class="grid" style="margin-top:20px" aria-live="polite"></div>
+            </section>
+
+            <section class="page" id="p-disease">
+                <div class="head">
+                    <h1>Check a leaf for disease</h1>
+                    <p>Take a clear photo of one affected leaf in daylight. Results come with a confidence score and a
+                        treatment plan.</p>
+                </div>
+                <div class="grid g2">
+                    <div class="card">
+                        <div class="scan" id="scan">
+                            <div class="ph"><svg width="56" height="56" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.6">
+                                    <path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" />
+                                    <path d="M12 17c-4 0-5-3-5-5 3 0 5 1 5 5zM12 17c0-3 1-5 5-5 0 3-2 5-5 5z" />
+                                </svg>
+                                <p><b>Drop a photo here</b></p>
+                                <p class="mute">or choose a file below</p>
+                            </div><img id="prev" alt="Uploaded leaf preview">
+                        </div>
+                        <p style="margin-top:12px"><label for="file">Leaf photo</label><input type="file" id="file"
+                                accept="image/*"></p>
+                        <p class="mute" style="margin-top:12px">No photo handy? Try a sample:</p>
+                        <div class="samples"><button class="chip" data-d="rust" type="button">Wheat leaf</button><button
+                                class="chip" data-d="blight" type="button">Tomato leaf</button><button class="chip"
+                                data-d="healthy" type="button">Rice leaf</button></div>
+                        <p style="margin-top:14px"><button class="btn" id="analyse" type="button">Analyse leaf</button>
+                        </p>
+                    </div>
+                    <div class="card" id="dres" aria-live="polite">
+                        <h3>Result</h3>
+                        <p class="mute">Add a photo or pick a sample, then select Analyse leaf.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="page" id="p-market">
+                <div class="head">
+                    <h1>Market prices</h1>
+                    <p>Live mandi rates and a 30-day forecast, so you know when to sell.</p>
+                </div>
+                <div class="chips" id="mchips" role="group" aria-label="Crop"></div>
+                <div class="grid g2" style="margin-top:16px">
+                    <div class="card">
+                        <div class="row">
+                            <h3 id="mt">Wheat · price per quintal</h3><span class="tag up" id="mtag"></span>
+                        </div>
+                        <div id="chart"></div>
+                        <p class="mute">Solid line: past 30 days. Dashed line: forecast for next 30 days.</p>
+                    </div>
+                    <div class="card" id="signal"></div>
+                </div>
+                <div class="card wrap" style="margin-top:16px">
+                    <h3 style="margin-bottom:6px">Nearby mandis</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mandi</th>
+                                <th>Distance</th>
+                                <th>Price (₹/q)</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mandi"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="page" id="p-rotation">
+                <div class="head">
+                    <h1>Plan your crop rotation</h1>
+                    <p>Rotating crops restores soil nutrients and breaks pest cycles. Choose what you grew last and see
+                        what comes next.</p>
+                </div>
+                <div class="card"><label for="last">Last crop grown</label><select id="last"
+                        style="max-width:280px"></select></div>
+                <h2 style="margin:24px 0 4px">Three-season plan</h2>
+                <div class="timeline" id="tl"></div>
+                <div class="grid g2" style="margin-top:16px">
+                    <div class="card">
+                        <h3>Why this order works</h3>
+                        <ol class="steps" id="why"></ol>
+                    </div>
+                    <div class="card">
+                        <h3>Expected soil effect</h3>
+                        <div id="soil"></div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script>
+        const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+        function route() {
+            const h = (location.hash || '#home').slice(1); const id = ['home', 'advisory', 'disease', 'market', 'rotation'].includes(h) ? h : 'home';
+            $$('.page').forEach(p => p.classList.toggle('on', p.id === 'p-' + id));
+            $$('nav a').forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + id) || a.removeAttribute('aria-current'));
+            $$('nav a').forEach(a => { if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'page') }); window.scrollTo(0, 0)
+        }
+        addEventListener('hashchange', route); route();
+        $('#theme').onclick = () => { const d = document.documentElement, dark = getComputedStyle(d).colorScheme === 'dark'; d.dataset.theme = dark ? 'light' : 'dark' };
+
+        /* Crop advisory */
+        const crops = [['Wheat', 'Rabi', [80, 40, 40, 6.8, 150]], ['Chickpea', 'Rabi', [40, 60, 80, 7, 100]], ['Mustard', 'Rabi', [70, 35, 30, 6.5, 120]], ['Rice', 'Kharif', [90, 45, 40, 6.2, 1200]], ['Maize', 'Kharif', [85, 50, 40, 6.3, 600]], ['Cotton', 'Kharif', [110, 45, 45, 7, 700]], ['Watermelon', 'Zaid', [100, 20, 50, 6.5, 400]], ['Moong', 'Zaid', [25, 50, 20, 6.8, 300]]];
+        $('#rec').onclick = () => {
+            const v = ['n', 'ph', 'k', 'sph', 'rain'].map(i => +$('#' + i).value), s = $('#season').value.split(' ')[0];
+            const sc = crops.map(c => { let d = c[2].reduce((a, x, i) => a + Math.abs(x - v[i]) / Math.max(x, v[i], 1), 0) / 5; let q = Math.round(100 - d * 100 + (c[1] === s ? 12 : -22)); return [c[0], Math.max(8, Math.min(98, q)), c[1]] }).sort((a, b) => b[1] - a[1]).slice(0, 3);
+            $('#recout').innerHTML = sc.map((c, i) => `<div class="card"><div class="row"><h3>${i ? '' : 'Best match: '}${c[0]}</h3><span class="tag">${c[2]}</span></div><p class="mute" style="margin:6px 0 10px">Suitability for your soil and season</p><div class="bar"><i style="width:${c[1]}%"></i></div><p><b>${c[1]}%</b> <span class="mute">match</span></p></div>`).join('')
+        };
+        $('#rec').click();
+
+        /* Disease */
+        const D = {
+            rust: { n: 'Wheat yellow rust', c: 94, sev: 'Moderate', cls: 'alert', steps: ['Remove and burn heavily infected leaves.', 'Spray propiconazole 25% EC at 1 ml per litre of water.', 'Repeat after 15 days if stripes keep spreading.', 'Avoid late evening irrigation.'] },
+            blight: { n: 'Tomato early blight', c: 89, sev: 'Mild', cls: 'alert warn', steps: ['Pick off spotted lower leaves.', 'Spray mancozeb 2.5 g per litre of water.', 'Stake plants so leaves stay off the soil.', 'Water at the base, not on leaves.'] },
+            healthy: { n: 'Healthy leaf', c: 97, sev: 'None', cls: 'alert ok', steps: ['No disease found.', 'Keep monitoring every 5–7 days.', 'Maintain balanced fertiliser use.'] }
+        };
+        let pick = 'rust';
+        $$('.samples .chip').forEach(b => b.onclick = () => { pick = b.dataset.d; $$('.samples .chip').forEach(x => x.setAttribute('aria-pressed', x === b)); $('#scan').classList.remove('has'); $('#prev').removeAttribute('src'); $('#file').value = '' });
+        $('#file').onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#prev').src = r.result; $('#scan').classList.add('has') }; r.readAsDataURL(f) };
+        $('#analyse').onclick = () => {
+            const sc = $('#scan'); sc.classList.add('busy'); $('#dres').innerHTML = '<h3>Result</h3><p class="mute">Analysing leaf…</p>';
+            setTimeout(() => {
+                sc.classList.remove('busy'); const d = D[pick]; $('#dres').className = 'card ' + d.cls;
+                $('#dres').innerHTML = `<h3>Result</h3><div class="stat" style="margin-top:8px">${d.n}</div><p><span class="tag">${d.c}% confidence</span> <span class="tag">Severity: ${d.sev}</span></p><h3 style="margin-top:16px">What to do</h3><ol class="steps">${d.steps.map(s => '<li>' + s + '</li>').join('')}</ol><p class="mute">Confirm with your local agriculture officer before spraying.</p>`
+            }, 1600)
+        };
+
+        /* Market */
+        const M = {
+            Wheat: [2485, [2310, 2330, 2300, 2350, 2380, 2370, 2420, 2410, 2440, 2460, 2485], [2500, 2520, 2550, 2580, 2570, 2610], 'up', 4.1, 'Hold', 'Prices are rising and forecast to climb about 5% over the next month. Wait 2–3 weeks before selling.'],
+            Onion: [1840, [2200, 2120, 2050, 2010, 1950, 1920, 1900, 1880, 1860, 1850, 1840], [1800, 1760, 1740, 1790, 1850, 1900], 'down', -7.2, 'Sell now', 'Prices are falling and may bottom out in 3 weeks. Sell part of your stock now to limit losses.'],
+            Soybean: [4620, [4500, 4510, 4540, 4530, 4560, 4580, 4590, 4600, 4610, 4615, 4620], [4640, 4650, 4660, 4670, 4690, 4700], 'up', 2.6, 'Hold', 'Steady growth expected. Selling after harvest rush eases usually gives a better rate.'],
+            Tomato: [1620, [1100, 1200, 1350, 1400, 1480, 1520, 1560, 1590, 1600, 1610, 1620], [1650, 1500, 1380, 1300, 1250, 1200], 'down', -9.0, 'Sell now', 'Prices peaked and are expected to drop as new supply arrives. Sell within a week.']
+        };
+        const md = [['Lasalgaon', ' 18 km', 0], ['Pimpalgaon', '32 km', -35], ['Nashik APMC', '9 km', 20], ['Pune APMC', '210 km', 60]];
+        function mkt(k) {
+            const [p, h, f, dir, ch, sig, txt] = M[k]; $$('#mchips .chip').forEach(c => c.setAttribute('aria-pressed', c.textContent === k));
+            $('#mt').textContent = k + ' · price per quintal'; $('#mtag').textContent = (ch > 0 ? '▲ ' : '▼ ') + Math.abs(ch) + '% this week'; $('#mtag').className = 'tag ' + dir;
+            const all = h.concat(f), mn = Math.min(...all) * .98, mx = Math.max(...all) * 1.02, W = 520, H = 220, X = i => 20 + i * (W - 30) / (all.length - 1), Y = v => H - 20 - (v - mn) / (mx - mn) * (H - 40);
+            const pts = a => a.map((v, i) => X(i + (a === f ? h.length - 1 : 0)) + ',' + Y(v)).join(' '); const fp = [h[h.length - 1]].concat(f);
+            $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Price trend and forecast for ${k}"><line x1="20" x2="${W - 10}" y1="${H - 20}" y2="${H - 20}" stroke="var(--line)"/><line x1="${X(h.length - 1)}" x2="${X(h.length - 1)}" y1="10" y2="${H - 20}" stroke="var(--line)" stroke-dasharray="3 4"/><polyline fill="none" stroke="var(--leaf)" stroke-width="3" points="${pts(h)}"/><polyline fill="none" stroke="var(--gold)" stroke-width="3" stroke-dasharray="7 6" points="${fp.map((v, i) => X(i + h.length - 1) + ',' + Y(v)).join(' ')}"/><circle cx="${X(h.length - 1)}" cy="${Y(p)}" r="6" fill="var(--leaf)"/><text x="${X(h.length - 1) - 8}" y="${Y(p) - 12}" text-anchor="end" fill="var(--ink)" font-size="13" font-weight="600">₹${p.toLocaleString('en-IN')}</text><text x="24" y="${H - 4}" fill="var(--mute)" font-size="11">30 days ago</text><text x="${W - 10}" y="${H - 4}" text-anchor="end" fill="var(--mute)" font-size="11">30 days ahead</text></svg>`;
+            $('#signal').className = 'card alert ' + (sig === 'Hold' ? 'ok' : 'warn'); $('#signal').innerHTML = `<p class="mute">Our advice for ${k}</p><div class="stat">${sig}</div><p>${txt}</p><p class="mute" style="margin-top:10px">Forecast confidence: 82%</p>`;
+            $('#mandi').innerHTML = md.map(m => { const v = p + m[2]; return `<tr><td>${m[0]}</td><td>${m[1]}</td><td><b>₹${v.toLocaleString('en-IN')}</b></td><td><span class="tag ${m[2] >= 0 ? 'up' : 'down'}">${m[2] >= 0 ? '▲' : '▼'} ${Math.abs(m[2] / p * 100).toFixed(1)}%</span></td></tr>` }).join('')
+        }
+        $('#mchips').innerHTML = Object.keys(M).map(k => `<button class="chip" type="button">${k}</button>`).join('');
+        $$('#mchips .chip').forEach(c => c.onclick = () => mkt(c.textContent)); mkt('Wheat');
+
+        /* Rotation */
+        const R = {
+            Wheat: [['Moong', 'Zaid', 'Fixes nitrogen and shortens fallow gap.'], ['Soybean', 'Kharif', 'Legume that adds nitrogen after a heavy feeder.'], ['Chickpea', 'Rabi', 'Different root depth and breaks wheat disease cycle.'], 'N restored', 72],
+            Rice: [['Chickpea', 'Rabi', 'Uses residual moisture and fixes nitrogen.'], ['Moong', 'Zaid', 'Quick legume that rests the soil.'], ['Maize', 'Kharif', 'Deep roots break the puddled soil layer.'], 'N restored', 65],
+            Cotton: [['Wheat', 'Rabi', 'Cereal breaks cotton pest cycles.'], ['Moong', 'Zaid', 'Rebuilds nitrogen.'], ['Soybean', 'Kharif', 'Legume improves soil structure.'], 'Pests reduced', 58],
+            Maize: [['Mustard', 'Rabi', 'Light feeder after a heavy feeder.'], ['Moong', 'Zaid', 'Adds nitrogen.'], ['Rice', 'Kharif', 'Uses restored fertility.'], 'Fertility balanced', 68]
+        };
+        $('#last').innerHTML = Object.keys(R).map(k => `<option>${k}</option>`).join('');
+        function rot() {
+            const r = R[$('#last').value];
+            $('#tl').innerHTML = r.slice(0, 3).map((s, i) => `<div class="seg ${i ? '' : 'now'}"><span>${s[1]}${i ? '' : ' · next'}</span><b>${s[0]}</b><span style="opacity:.85;font-size:.9rem">Season ${i + 1}</span></div>`).join('');
+            $('#why').innerHTML = r.slice(0, 3).map(s => `<li><b>${s[0]}:</b> ${s[2]}</li>`).join('');
+            $('#soil').innerHTML = `<p class="mute">Soil health score after 3 seasons</p><div class="stat">${r[4]}%</div><div class="bar"><i style="width:${r[4]}%"></i></div><p style="margin-top:10px"><span class="tag up">${r[3]}</span></p><p class="mute">Compared with growing ${$('#last').value} again on the same plot.</p>`
+        }
+        $('#last').onchange = rot; rot();
+    </script>
+</body>
+
+</html>
