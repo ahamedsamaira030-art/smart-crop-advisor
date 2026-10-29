@@ -25,6 +25,7 @@ const features = [
   },
 ];
 function FeatureVisual({ type }) {
+  // The graph that shows chickpea, wheat etc percentages
   if (type === "crops")
     return (
       <div className="flex flex-col gap-4">
@@ -49,6 +50,7 @@ function FeatureVisual({ type }) {
       </div>
     );
   if (type === "disease")
+    // The disease one
     return (
       <div>
         <span className="inline-flex rounded-full border border-farm-line bg-farm-bg px-3 py-1 text-sm font-semibold text-farm-chili">
@@ -93,6 +95,7 @@ function FeatureVisual({ type }) {
       </div>
     );
   return (
+    // The crop rotation one
     <div>
       <div className="flex flex-wrap items-center gap-2 font-semibold">
         <span className="rounded-xl bg-farm-leaf px-3 py-2 text-white">
@@ -148,23 +151,31 @@ export default function LandingPage() {
               </button>
             </nav>
           </div>
+
+          {/* The header and writing container */}
           <div className="grid items-center gap-10 pb-16 pt-5 md:grid-cols-[1.1fr_.9fr] md:gap-12 md:pb-24">
             <div>
               <h1 className="font-display text-4xl font-extrabold leading-[1.04] tracking-tight sm:text-6xl">
                 Know what your crop needs before it asks.
               </h1>
+              
               <p className="mt-6 max-w-xl text-lg leading-8 opacity-90">
                 Photograph a sick leaf, get a diagnosis in seconds. Choose the
                 right crop for your soil, sell at the right price, and plan next
                 season’s rotation. All in one place.
               </p>
+              
+              {/* Button container */}
               <div className="mt-7 flex flex-wrap gap-3">
+                {/* Get started for free button */}
                 <button
                   className="rounded-xl bg-farm-gold px-6 py-3.5 font-semibold text-[#1b1500] hover:brightness-110"
                   onClick={() => navigate("/app")}
                 >
                   Get started free
                 </button>
+
+                {/* See how it works button */}
                 <a
                   className="rounded-xl border border-white/60 px-6 py-3.5 font-semibold hover:bg-white/10"
                   href="#how"
@@ -173,7 +184,10 @@ export default function LandingPage() {
                 </a>
               </div>
             </div>
+            
+            {/* The entire svg container */}
             <div className="relative mx-auto aspect-square w-full max-w-[390px] rounded-[2rem] bg-farm-leaf/40 p-7">
+              {/* The leaf svg inner container */}
               <div className="relative grid h-full place-items-center overflow-hidden rounded-2xl border border-white/20 bg-farm-leaf/30">
                 <svg viewBox="0 0 300 310" className="h-full w-full p-5">
                   <path
@@ -197,6 +211,8 @@ export default function LandingPage() {
                 </svg>
                 <div className="absolute left-0 right-0 top-1/2 h-1 animate-pulse bg-farm-gold shadow-[0_0_22px_4px_rgba(224,165,38,.7)]" />
               </div>
+
+              {/* Two random floating bubbles */}
               <div className="absolute -right-1 top-[24%] rounded-xl bg-farm-surface px-4 py-3 text-farm-ink shadow-xl sm:-right-4">
                 <b className="block font-display">Yellow rust</b>
                 <span className="text-sm font-semibold text-farm-chili">
@@ -213,6 +229,8 @@ export default function LandingPage() {
           </div>
         </div>
       </header>
+
+      {/* The yellow strip */}
       <div className="bg-farm-gold text-[#1b1500]">
         <div className="mx-auto flex max-w-6xl flex-wrap gap-x-9 gap-y-2 px-5 py-4 font-semibold sm:px-8">
           <span>Works on any phone camera</span>
@@ -220,10 +238,12 @@ export default function LandingPage() {
           <span>Advice in simple language</span>
         </div>
       </div>
+
       <section
         id="features"
         className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20"
       >
+        {/* ai ass section */}
         <SectionHeading
           title="Four tools. One farm."
           description="Each one answers a question farmers ask every season."
@@ -247,6 +267,7 @@ export default function LandingPage() {
           </div>
         ))}
       </section>
+      
       <section
         id="how"
         className="border-y border-farm-line bg-farm-surface py-16 sm:py-20"
@@ -269,6 +290,7 @@ export default function LandingPage() {
                 key={title}
                 className="border-t border-farm-line py-6 md:border-l md:border-t-0 md:px-7 md:first:border-l-0 md:first:pl-0"
               >
+                {/* Index marker */}
                 <div className="mb-4 grid h-10 w-10 place-items-center rounded-full bg-farm-leaf font-display text-lg font-extrabold text-white">
                   {i + 1}
                 </div>
@@ -279,7 +301,10 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Bottom section */}
       <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+        {/* The green rectangle */}
         <div className="grid gap-5 rounded-3xl bg-farm-leaf p-8 text-white sm:p-14">
           <h2 className="font-display text-3xl font-extrabold sm:text-5xl">
             Ready for a healthier harvest?
@@ -288,13 +313,18 @@ export default function LandingPage() {
             Create a free account and run your first leaf scan in under a
             minute.
           </p>
+
+          {/* Button container */}
           <div className="flex flex-wrap gap-3">
+            {/* Create free account button */}
             <button
               onClick={() => navigate("/app")}
               className="rounded-xl bg-farm-gold px-5 py-3 font-semibold text-[#1b1500]"
             >
               Create free account
             </button>
+
+            {/* I already have one button */}
             <button
               onClick={() => navigate("/app")}
               className="rounded-xl border border-white/60 px-5 py-3 font-semibold"
@@ -302,8 +332,11 @@ export default function LandingPage() {
               I already have one
             </button>
           </div>
+
         </div>
       </section>
+
+      {/* The footer */}
       <footer className="mx-auto flex max-w-6xl flex-wrap justify-between gap-3 px-5 pb-16 text-sm text-farm-muted sm:px-8">
         <span>KrishiMitra · Final year project</span>
         <span>Built by [Your team name], [Your college]</span>
