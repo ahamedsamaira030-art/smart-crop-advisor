@@ -1,0 +1,14 @@
+import sklearn
+import numpy
+import pandas
+import joblib
+import matplotlib
+import kagglehub
+import seaborn
+print("scikit-learn:", sklearn.__version__)
+print("NumPy:", numpy.__version__)
+print("Pandas:", pandas.__version__)
+print("Joblib:", joblib.__version__)
+print("Matplotlib", matplotlib.__version__)
+print("kagglehub", kagglehub.__version__)
+print("seaborn", seaborn.__version__)
